@@ -4,7 +4,6 @@ import qs from "querystring";
 import config from "../config";
 
 const { api } = config;
-console.log(api);
 
 export const signIn = createAsyncThunk("login", async () => {
   const res = await axios.post(
