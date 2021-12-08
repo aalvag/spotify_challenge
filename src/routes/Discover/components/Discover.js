@@ -1,27 +1,69 @@
-import React, { Component } from 'react';
-import DiscoverBlock from './DiscoverBlock/components/DiscoverBlock';
-import '../styles/_discover.scss';
+import React from "react";
+import DiscoverBlock from "./DiscoverBlock/components/DiscoverBlock";
+import "../styles/_discover.scss";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCategories,
+  getFeaturedPlaylists,
+  getNewReleases,
+  signIn,
+} from "../../../state/actions";
+import {
+  categoriesSelector,
+  featuredPlaylistsSelector,
+  login,
+  newRealeasesSelector,
+} from "../../../state/selectors";
 
-export default class Discover extends Component {
-  constructor() {
-    super();
+const Discover = () => {
+  const dispatch = useDispatch();
 
-    this.state = {
-      newReleases: [],
-      playlists: [],
-      categories: []
-    };
-  }
+  const {
+    data: { categories },
+  } = useSelector(categoriesSelector);
 
-  render() {
-    const { newReleases, playlists, categories } = this.state;
+  const {
+    data: { playlists },
+  } = useSelector(featuredPlaylistsSelector);
 
-    return (
-      <div className="discover">
-        <DiscoverBlock text="RELEASED THIS WEEK" id="released" data={newReleases} />
-        <DiscoverBlock text="FEATURED PLAYLISTS" id="featured" data={playlists} />
-        <DiscoverBlock text="BROWSE" id="browse" data={categories} imagesKey="icons" />
-      </div>
-    );
-  }
-}
+  const {
+    data: { albums },
+  } = useSelector(newRealeasesSelector);
+
+  const { userInfo } = useSelector(login);
+
+  React.useEffect(() => {
+    dispatch(signIn());
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    if (userInfo) {
+      dispatch(getNewReleases());
+      dispatch(getFeaturedPlaylists());
+      dispatch(getCategories());
+    }
+  }, [dispatch, userInfo]);
+
+  return (
+    <div className="discover">
+      <DiscoverBlock
+        text="RELEASED THIS WEEK"
+        id="released"
+        data={albums?.items}
+      />
+      <DiscoverBlock
+        text="FEATURED PLAYLISTS"
+        id="featured"
+        data={playlists?.items}
+      />
+      <DiscoverBlock
+        text="BROWSE"
+        id="browse"
+        data={categories?.items}
+        imagesKey="icons"
+      />
+    </div>
+  );
+};
+
+export default Discover;
